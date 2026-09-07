@@ -1,16 +1,18 @@
 import React, { useState } from 'react';
-import { Settings, Moon, Sun, ChevronDown, Circle, User as UserIcon, LogOut } from 'lucide-react';
+import { Settings, Moon, Sun, ChevronDown, Circle, User as UserIcon, LogOut, Users } from 'lucide-react';
 import { useChat } from '../../context/ChatContext';
 import { useTheme } from '../../context/ThemeContext';
 import { useAuth } from '../../context/AuthContext';
 import { Avatar } from '../Common/Avatar';
 import type { UserStatus } from '../../types/chat';
+import { ConnectionsModal } from '../Modals/ConnectionsModal';
 
 export const UserProfileHeader: React.FC = () => {
   const { currentUser, userStatus, setUserStatus, setShowSettingsModal, setShowProfileModal } = useChat();
   const { theme, setTheme, playSound } = useTheme();
   const { logout } = useAuth();
   const [showStatusMenu, setShowStatusMenu] = useState(false);
+  const [showConnections, setShowConnections] = useState(false);
 
   const statuses: { label: string; value: UserStatus; color: string }[] = [
     { label: 'Online', value: 'online', color: '#10b981' },
@@ -109,6 +111,26 @@ export const UserProfileHeader: React.FC = () => {
 
       <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
         <button
+          onClick={() => { playSound('click'); setShowConnections(true); }}
+          title="Connections"
+          style={{
+            background: 'var(--bg-card)',
+            border: '1px solid var(--border-color)',
+            color: 'var(--text-main)',
+            width: '36px',
+            height: '36px',
+            borderRadius: 'var(--radius-md)',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            cursor: 'pointer',
+            transition: 'all 0.2s ease',
+          }}
+        >
+          <Users size={18} />
+        </button>
+
+        <button
           onClick={toggleThemeQuick}
           title="Toggle Dark / Light Theme"
           style={{
@@ -197,6 +219,8 @@ export const UserProfileHeader: React.FC = () => {
           <LogOut size={18} />
         </button>
       </div>
+
+      <ConnectionsModal show={showConnections} onClose={() => setShowConnections(false)} />
     </div>
   );
 };

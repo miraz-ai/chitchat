@@ -6,7 +6,7 @@ import { useAuth } from '../../context/AuthContext';
 import { Avatar } from '../Common/Avatar';
 
 export const ProfileModal: React.FC = () => {
-  const { showProfileModal, setShowProfileModal, currentUser } = useChat();
+  const { showProfileModal, setShowProfileModal } = useChat();
   const { playSound } = useTheme();
   const { user, updateUser } = useAuth();
 

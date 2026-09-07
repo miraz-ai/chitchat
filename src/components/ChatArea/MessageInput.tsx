@@ -22,6 +22,8 @@ export const MessageInput: React.FC = () => {
     replyingToMessage,
     setReplyingToMessage,
     activeConversation,
+    startTyping,
+    stopTyping,
   } = useChat();
   const { playSound } = useTheme();
 
@@ -327,7 +329,14 @@ export const MessageInput: React.FC = () => {
 
           <textarea
             value={text}
-            onChange={e => setText(e.target.value)}
+            onChange={e => {
+               setText(e.target.value);
+               if (e.target.value.trim() !== '') {
+                  startTyping();
+               } else {
+                  stopTyping();
+               }
+            }}
             onKeyDown={handleKeyDown}
             placeholder={isCodeMode ? 'Paste your code snippet here...' : 'Type a message... (Enter to send)'}
             rows={1}
