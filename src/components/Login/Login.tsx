@@ -9,17 +9,35 @@ export const Login: React.FC = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const [errorMsg, setErrorMsg] = useState('');
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
+    setErrorMsg('');
     
-    // Simulate network request (login or signup)
-    setTimeout(() => {
-      // In a real app, you'd pass user data to AuthContext or backend
-      login();
+    try {
+      const endpoint = isLoginMode ? '/api/auth/login' : '/api/auth/register';
+      const body = isLoginMode ? { email, password } : { name, email, password };
+      
+      const res = await fetch(endpoint, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(body)
+      });
+      
+      const data = await res.json();
+      
+      if (res.ok) {
+        login(data.token, data.user);
+      } else {
+        setErrorMsg(data.error || 'An error occurred');
+      }
+    } catch (err) {
+      setErrorMsg('Failed to connect to the server');
+    } finally {
       setIsLoading(false);
-    }, 1200);
+    }
   };
 
   const toggleMode = (e: React.MouseEvent) => {
@@ -29,6 +47,7 @@ export const Login: React.FC = () => {
     setName('');
     setEmail('');
     setPassword('');
+    setErrorMsg('');
   };
 
   const isFormValid = isLoginMode 
@@ -53,6 +72,21 @@ export const Login: React.FC = () => {
           <h1>{isLoginMode ? 'ChitChat' : 'Create Account'}</h1>
           <p>{isLoginMode ? 'Connect with your team in real-time' : 'Join us and start chatting'}</p>
         </div>
+
+        {errorMsg && (
+          <div style={{
+            background: 'rgba(239, 68, 68, 0.1)',
+            color: '#ef4444',
+            padding: '10px',
+            borderRadius: 'var(--radius-md)',
+            marginBottom: '16px',
+            fontSize: '13px',
+            textAlign: 'center',
+            border: '1px solid rgba(239, 68, 68, 0.2)'
+          }}>
+            {errorMsg}
+          </div>
+        )}
 
         <form className="login-form" onSubmit={handleSubmit}>
           {!isLoginMode && (

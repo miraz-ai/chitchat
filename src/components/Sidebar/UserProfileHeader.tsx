@@ -1,13 +1,15 @@
 import React, { useState } from 'react';
-import { Settings, Moon, Sun, ChevronDown, Circle } from 'lucide-react';
+import { Settings, Moon, Sun, ChevronDown, Circle, User as UserIcon, LogOut } from 'lucide-react';
 import { useChat } from '../../context/ChatContext';
 import { useTheme } from '../../context/ThemeContext';
+import { useAuth } from '../../context/AuthContext';
 import { Avatar } from '../Common/Avatar';
 import type { UserStatus } from '../../types/chat';
 
 export const UserProfileHeader: React.FC = () => {
-  const { currentUser, userStatus, setUserStatus, setShowSettingsModal } = useChat();
+  const { currentUser, userStatus, setUserStatus, setShowSettingsModal, setShowProfileModal } = useChat();
   const { theme, setTheme, playSound } = useTheme();
+  const { logout } = useAuth();
   const [showStatusMenu, setShowStatusMenu] = useState(false);
 
   const statuses: { label: string; value: UserStatus; color: string }[] = [
@@ -129,6 +131,29 @@ export const UserProfileHeader: React.FC = () => {
         <button
           onClick={() => {
             playSound('click');
+            setShowProfileModal(true);
+          }}
+          title="Edit Profile"
+          style={{
+            background: 'var(--bg-card)',
+            border: '1px solid var(--border-color)',
+            color: 'var(--text-main)',
+            width: '36px',
+            height: '36px',
+            borderRadius: 'var(--radius-md)',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            cursor: 'pointer',
+            transition: 'all 0.2s ease',
+          }}
+        >
+          <UserIcon size={18} />
+        </button>
+
+        <button
+          onClick={() => {
+            playSound('click');
             setShowSettingsModal(true);
           }}
           title="App Settings"
@@ -147,6 +172,29 @@ export const UserProfileHeader: React.FC = () => {
           }}
         >
           <Settings size={18} />
+        </button>
+
+        <button
+          onClick={() => {
+            playSound('click');
+            logout();
+          }}
+          title="Logout"
+          style={{
+            background: 'var(--bg-card)',
+            border: '1px solid var(--border-color)',
+            color: '#ef4444',
+            width: '36px',
+            height: '36px',
+            borderRadius: 'var(--radius-md)',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            cursor: 'pointer',
+            transition: 'all 0.2s ease',
+          }}
+        >
+          <LogOut size={18} />
         </button>
       </div>
     </div>

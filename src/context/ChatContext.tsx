@@ -3,6 +3,7 @@ import confetti from 'canvas-confetti';
 import type { Conversation, Message, User, UserStatus, Attachment, MessageType } from '../types/chat';
 import { INITIAL_CONVERSATIONS, INITIAL_MESSAGES, CURRENT_USER, MOCK_USERS } from '../data/mockData';
 import { useTheme } from './ThemeContext';
+import { useAuth } from './AuthContext';
 
 interface ChatContextType {
   conversations: Conversation[];
@@ -35,6 +36,8 @@ interface ChatContextType {
   setShowNewChatModal: React.Dispatch<React.SetStateAction<boolean>>;
   showSettingsModal: boolean;
   setShowSettingsModal: React.Dispatch<React.SetStateAction<boolean>>;
+  showProfileModal: boolean;
+  setShowProfileModal: React.Dispatch<React.SetStateAction<boolean>>;
   lightboxImage: string | null;
   setLightboxImage: (url: string | null) => void;
   createConversation: (name: string, type: 'direct' | 'group', selectedUserIds: string[]) => void;
@@ -59,8 +62,18 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({ children
   });
 
   const [activeConversationId, setActiveConversationIdState] = useState<string>('conv_sarah');
-  const [currentUser, setCurrentUser] = useState<User>(CURRENT_USER);
-  const [userStatus, setUserStatusState] = useState<UserStatus>(CURRENT_USER.status);
+  const { user: authUser } = useAuth();
+  
+  // Use auth user if available, fallback to mock CURRENT_USER
+  const currentUser = authUser ? {
+    id: authUser.id.toString(),
+    name: authUser.name,
+    avatar: authUser.avatar,
+    status: authUser.status as UserStatus || 'online',
+    isAi: false
+  } : CURRENT_USER;
+
+  const [userStatus, setUserStatusState] = useState<UserStatus>(currentUser.status);
 
   const [replyingToMessage, setReplyingToMessage] = useState<Message | null>(null);
   const [typingUsersMap, setTypingUsersMap] = useState<Record<string, string[]>>({});
@@ -70,6 +83,7 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [showInfoPanel, setShowInfoPanel] = useState<boolean>(false);
   const [showNewChatModal, setShowNewChatModal] = useState<boolean>(false);
   const [showSettingsModal, setShowSettingsModal] = useState<boolean>(false);
+  const [showProfileModal, setShowProfileModal] = useState<boolean>(false);
   const [lightboxImage, setLightboxImage] = useState<string | null>(null);
 
   // Save state updates to localStorage
@@ -87,7 +101,6 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const setUserStatus = (status: UserStatus) => {
     setUserStatusState(status);
-    setCurrentUser(prev => ({ ...prev, status }));
   };
 
   const setActiveConversationId = (id: string) => {
@@ -405,6 +418,8 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({ children
         setShowNewChatModal,
         showSettingsModal,
         setShowSettingsModal,
+        showProfileModal,
+        setShowProfileModal,
         lightboxImage,
         setLightboxImage,
         createConversation,

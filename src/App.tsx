@@ -10,10 +10,19 @@ import { CallModal } from './components/Modals/CallModal';
 import { SettingsModal } from './components/Modals/SettingsModal';
 import { NewChatModal } from './components/Modals/NewChatModal';
 import { MediaLightbox } from './components/Modals/MediaLightbox';
+import { ProfileModal } from './components/Modals/ProfileModal';
 import { Login } from './components/Login/Login';
 
 export const AppContent: React.FC = () => {
-  const { isAuthenticated } = useAuth();
+  const { isAuthenticated, isLoading } = useAuth();
+
+  if (isLoading) {
+    return (
+      <div style={{ display: 'flex', height: '100vh', alignItems: 'center', justifyContent: 'center' }}>
+        <div className="spinner"></div>
+      </div>
+    );
+  }
 
   if (!isAuthenticated) {
     return <Login />;
@@ -30,6 +39,7 @@ export const AppContent: React.FC = () => {
       <SettingsModal />
       <NewChatModal />
       <MediaLightbox />
+      <ProfileModal />
     </div>
   );
 };
