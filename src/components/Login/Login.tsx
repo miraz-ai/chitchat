@@ -6,6 +6,7 @@ export const Login: React.FC = () => {
   const { login } = useAuth();
   const [isLoginMode, setIsLoginMode] = useState(true);
   const [name, setName] = useState('');
+  const [username, setUsername] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [isLoading, setIsLoading] = useState(false);
@@ -18,7 +19,7 @@ export const Login: React.FC = () => {
     
     try {
       const endpoint = isLoginMode ? '/api/auth/login' : '/api/auth/register';
-      const body = isLoginMode ? { email, password } : { name, email, password };
+      const body = isLoginMode ? { email, password } : { username, name, email, password };
       
       const res = await fetch(endpoint, {
         method: 'POST',
@@ -45,14 +46,27 @@ export const Login: React.FC = () => {
     setIsLoginMode(!isLoginMode);
     // Reset fields on toggle
     setName('');
+    setUsername('');
     setEmail('');
     setPassword('');
     setErrorMsg('');
   };
 
+  const getPasswordErrors = (pass: string) => {
+    const errors = [];
+    if (pass.length < 8) errors.push('At least 8 characters');
+    if (!/[A-Z]/.test(pass)) errors.push('One uppercase letter');
+    if (!/[a-z]/.test(pass)) errors.push('One lowercase letter');
+    if (!/\d/.test(pass)) errors.push('One number');
+    if (!/[@$!%*?&]/.test(pass)) errors.push('One special character (@$!%*?&)');
+    return errors;
+  };
+
+  const passwordErrors = getPasswordErrors(password);
+
   const isFormValid = isLoginMode 
     ? email && password 
-    : name && email && password;
+    : name && username && email && password && passwordErrors.length === 0;
 
   return (
     <div className="login-container">
@@ -90,17 +104,32 @@ export const Login: React.FC = () => {
 
         <form className="login-form" onSubmit={handleSubmit}>
           {!isLoginMode && (
-            <div className="input-group">
-              <label htmlFor="name">Full Name</label>
-              <input
-                type="text"
-                id="name"
-                placeholder="John Doe"
-                value={name}
-                onChange={(e) => setName(e.target.value)}
-                required={!isLoginMode}
-              />
-            </div>
+            <>
+              <div className="input-group">
+                <label htmlFor="name">Full Name</label>
+                <input
+                  type="text"
+                  id="name"
+                  placeholder="John Doe"
+                  value={name}
+                  onChange={(e) => setName(e.target.value)}
+                  required={!isLoginMode}
+                />
+              </div>
+              <div className="input-group">
+                <label htmlFor="username">Username</label>
+                <input
+                  type="text"
+                  id="username"
+                  placeholder="johndoe"
+                  value={username}
+                  onChange={(e) => setUsername(e.target.value.trim())}
+                  pattern="[a-zA-Z0-9_]{3,20}"
+                  title="3-20 characters, alphanumeric and underscores only"
+                  required={!isLoginMode}
+                />
+              </div>
+            </>
           )}
 
           <div className="input-group">
@@ -123,9 +152,20 @@ export const Login: React.FC = () => {
               placeholder="••••••••"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              minLength={6}
               required
             />
+            {!isLoginMode && password.length > 0 && (
+              <div style={{ marginTop: '8px', fontSize: '11px', color: 'var(--text-dim)' }}>
+                Password must contain:
+                <ul style={{ paddingLeft: '16px', margin: '4px 0 0 0', color: passwordErrors.length === 0 ? '#10b981' : '#ef4444' }}>
+                  {passwordErrors.length === 0 ? (
+                    <li>All requirements met!</li>
+                  ) : (
+                    passwordErrors.map((err, idx) => <li key={idx}>{err}</li>)
+                  )}
+                </ul>
+              </div>
+            )}
           </div>
 
           <div className="form-actions">

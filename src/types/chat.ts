@@ -4,6 +4,7 @@ export type ThemeMode = 'cyber-dark' | 'midnight-indigo' | 'neon-synth' | 'clean
 
 export interface User {
   id: string;
+  username?: string;
   name: string;
   avatar: string;
   status: UserStatus;

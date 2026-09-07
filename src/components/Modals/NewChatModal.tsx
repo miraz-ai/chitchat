@@ -83,7 +83,7 @@ export const NewChatModal: React.FC = () => {
         }}
       >
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '16px' }}>
-          <h3 style={{ fontSize: '18px', fontWeight: 700 }}>Find Users</h3>
+          <h3 style={{ fontSize: '18px', fontWeight: 700 }}>Find Friends</h3>
           <button onClick={() => setShowNewChatModal(false)} style={{ background: 'transparent', border: 'none', color: 'var(--text-muted)', cursor: 'pointer' }}>
             <X size={20} />
           </button>
@@ -95,7 +95,7 @@ export const NewChatModal: React.FC = () => {
             </div>
             <input
               type="text"
-              placeholder="Search users by name or email..."
+              placeholder="Search friends by @username or name..."
               value={query}
               onChange={e => setQuery(e.target.value)}
               style={{
@@ -124,7 +124,9 @@ export const NewChatModal: React.FC = () => {
                 <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
                   <Avatar src={u.avatar} name={u.name} status={u.status} isAi={false} size="sm" />
                   <div>
-                    <div style={{ fontSize: '13px', fontWeight: 600 }}>{u.name}</div>
+                    <div style={{ fontSize: '13px', fontWeight: 600 }}>
+                      {u.name} <span style={{ color: 'var(--accent-secondary)', fontWeight: 400, marginLeft: '4px' }}>@{u.username}</span>
+                    </div>
                     <div style={{ fontSize: '11px', color: 'var(--text-dim)' }}>{u.email}</div>
                   </div>
                 </div>

@@ -11,17 +11,47 @@ const db = new sqlite3.Database(dbPath, (err) => {
     console.error('Error connecting to SQLite database', err.message);
   } else {
     console.log('Connected to SQLite database');
-    db.run(`
-      CREATE TABLE IF NOT EXISTS users (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-        name TEXT NOT NULL,
-        email TEXT UNIQUE NOT NULL,
-        password TEXT NOT NULL,
-        avatar TEXT,
-        status TEXT DEFAULT 'offline',
-        last_seen DATETIME
-      )
-    `);
+    db.all("PRAGMA table_info(users)", (err, columns) => {
+      let hasUsername = false;
+      if (columns) {
+         hasUsername = columns.some(col => col.name === 'username');
+      }
+      
+      if (!hasUsername && columns && columns.length > 0) {
+        console.log("Migrating users table to add 'username' column...");
+        db.serialize(() => {
+          db.run(`CREATE TABLE IF NOT EXISTS users_new (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            username TEXT UNIQUE NOT NULL,
+            name TEXT NOT NULL,
+            email TEXT UNIQUE NOT NULL,
+            password TEXT NOT NULL,
+            avatar TEXT,
+            status TEXT DEFAULT 'offline',
+            last_seen DATETIME
+          )`);
+          
+          db.run(`INSERT INTO users_new (id, username, name, email, password, avatar)
+                  SELECT id, LOWER(REPLACE(name, ' ', '_')) || '_' || id, name, email, password, avatar FROM users`);
+          
+          db.run(`DROP TABLE users`);
+          db.run(`ALTER TABLE users_new RENAME TO users`);
+        });
+      } else {
+        db.run(`
+          CREATE TABLE IF NOT EXISTS users (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            username TEXT UNIQUE NOT NULL,
+            name TEXT NOT NULL,
+            email TEXT UNIQUE NOT NULL,
+            password TEXT NOT NULL,
+            avatar TEXT,
+            status TEXT DEFAULT 'offline',
+            last_seen DATETIME
+          )
+        `);
+      }
+    });
 
     // Connections table
     db.run(`

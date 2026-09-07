@@ -43,22 +43,35 @@ const authenticateToken = (req, res, next) => {
 // --- AUTH ROUTES ---
 
 app.post('/api/auth/register', async (req, res) => {
-  const { name, email, password } = req.body;
-  if (!name || !email || !password) {
+  const { username, name, email, password } = req.body;
+  if (!username || !name || !email || !password) {
     return res.status(400).json({ error: 'All fields are required' });
   }
 
-  db.get('SELECT * FROM users WHERE email = ?', [email], async (err, row) => {
+  const usernameRegex = /^[a-zA-Z0-9_]{3,20}$/;
+  if (!usernameRegex.test(username)) {
+    return res.status(400).json({ error: 'Username must be 3-20 characters, containing only letters, numbers, and underscores.' });
+  }
+
+  const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
+  if (!passwordRegex.test(password)) {
+    return res.status(400).json({ error: 'Password must be at least 8 characters long and contain at least one uppercase letter, one lowercase letter, one number, and one special character.' });
+  }
+
+  db.get('SELECT * FROM users WHERE email = ? OR username = ?', [email, username], async (err, row) => {
     if (err) return res.status(500).json({ error: err.message });
-    if (row) return res.status(400).json({ error: 'Email already exists' });
+    if (row) {
+       if (row.email === email) return res.status(400).json({ error: 'Email already exists' });
+       if (row.username === username) return res.status(400).json({ error: 'Username already taken' });
+    }
 
     try {
       const hashedPassword = await bcrypt.hash(password, 10);
       const defaultAvatar = 'https://ui-avatars.com/api/?name=' + encodeURIComponent(name) + '&background=random';
       
       db.run(
-        'INSERT INTO users (name, email, password, avatar, status) VALUES (?, ?, ?, ?, ?)',
-        [name, email, hashedPassword, defaultAvatar, 'online'],
+        'INSERT INTO users (username, name, email, password, avatar, status) VALUES (?, ?, ?, ?, ?, ?)',
+        [username, name, email, hashedPassword, defaultAvatar, 'online'],
         function (err) {
           if (err) return res.status(500).json({ error: err.message });
           
@@ -67,7 +80,7 @@ app.post('/api/auth/register', async (req, res) => {
           
           res.status(201).json({
             token,
-            user: { id: userId, name, email, avatar: defaultAvatar, status: 'online' }
+            user: { id: userId, username, name, email, avatar: defaultAvatar, status: 'online' }
           });
         }
       );
@@ -101,7 +114,7 @@ app.post('/api/auth/login', (req, res) => {
 });
 
 app.get('/api/auth/me', authenticateToken, (req, res) => {
-  db.get('SELECT id, name, email, avatar, status, last_seen FROM users WHERE id = ?', [req.user.id], (err, user) => {
+  db.get('SELECT id, username, name, email, avatar, status, last_seen FROM users WHERE id = ?', [req.user.id], (err, user) => {
     if (err) return res.status(500).json({ error: err.message });
     if (!user) return res.status(404).json({ error: 'User not found' });
     res.json({ user });
@@ -138,17 +151,17 @@ app.get('/api/users/search', authenticateToken, (req, res) => {
   const searchPattern = `%${query}%`;
   
   const sql = `
-    SELECT u.id, u.name, u.email, u.avatar, u.status, u.last_seen,
+    SELECT u.id, u.username, u.name, u.email, u.avatar, u.status, u.last_seen,
            c.status as connection_status, c.requester_id
     FROM users u
     LEFT JOIN connections c ON 
       (c.requester_id = u.id AND c.receiver_id = ?) OR 
       (c.requester_id = ? AND c.receiver_id = u.id)
-    WHERE u.id != ? AND (u.name LIKE ? OR u.email LIKE ?)
+    WHERE u.id != ? AND (u.name LIKE ? OR u.username LIKE ? OR u.email LIKE ?)
     LIMIT 20
   `;
   
-  db.all(sql, [req.user.id, req.user.id, req.user.id, searchPattern, searchPattern], (err, users) => {
+  db.all(sql, [req.user.id, req.user.id, req.user.id, searchPattern, searchPattern, searchPattern], (err, users) => {
     if (err) return res.status(500).json({ error: err.message });
     res.json(users);
   });
