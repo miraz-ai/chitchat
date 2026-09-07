@@ -4,6 +4,8 @@ import './Login.css';
 
 export const Login: React.FC = () => {
   const { login } = useAuth();
+  const [isLoginMode, setIsLoginMode] = useState(true);
+  const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [isLoading, setIsLoading] = useState(false);
@@ -12,12 +14,26 @@ export const Login: React.FC = () => {
     e.preventDefault();
     setIsLoading(true);
     
-    // Simulate network request
+    // Simulate network request (login or signup)
     setTimeout(() => {
+      // In a real app, you'd pass user data to AuthContext or backend
       login();
       setIsLoading(false);
     }, 1200);
   };
+
+  const toggleMode = (e: React.MouseEvent) => {
+    e.preventDefault();
+    setIsLoginMode(!isLoginMode);
+    // Reset fields on toggle
+    setName('');
+    setEmail('');
+    setPassword('');
+  };
+
+  const isFormValid = isLoginMode 
+    ? email && password 
+    : name && email && password;
 
   return (
     <div className="login-container">
@@ -34,11 +50,25 @@ export const Login: React.FC = () => {
               <path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"></path>
             </svg>
           </div>
-          <h1>ChitChat</h1>
-          <p>Connect with your team in real-time</p>
+          <h1>{isLoginMode ? 'ChitChat' : 'Create Account'}</h1>
+          <p>{isLoginMode ? 'Connect with your team in real-time' : 'Join us and start chatting'}</p>
         </div>
 
         <form className="login-form" onSubmit={handleSubmit}>
+          {!isLoginMode && (
+            <div className="input-group">
+              <label htmlFor="name">Full Name</label>
+              <input
+                type="text"
+                id="name"
+                placeholder="John Doe"
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+                required={!isLoginMode}
+              />
+            </div>
+          )}
+
           <div className="input-group">
             <label htmlFor="email">Email</label>
             <input
@@ -64,24 +94,31 @@ export const Login: React.FC = () => {
           </div>
 
           <div className="form-actions">
-            <a href="#" className="forgot-password">Forgot password?</a>
+            {isLoginMode ? (
+              <a href="#" className="forgot-password">Forgot password?</a>
+            ) : (
+              <div style={{height: '19px'}}></div> /* Spacer for alignment */
+            )}
           </div>
 
           <button 
             type="submit" 
             className={`submit-btn ${isLoading ? 'loading' : ''}`}
-            disabled={isLoading || !email || !password}
+            disabled={isLoading || !isFormValid}
           >
             {isLoading ? (
               <div className="spinner"></div>
             ) : (
-              'Sign In'
+              isLoginMode ? 'Sign In' : 'Sign Up'
             )}
           </button>
         </form>
 
         <div className="login-footer">
-          Don't have an account? <a href="#">Sign up</a>
+          {isLoginMode ? "Don't have an account? " : "Already have an account? "}
+          <a href="#" onClick={toggleMode}>
+            {isLoginMode ? 'Sign up' : 'Sign in'}
+          </a>
         </div>
       </div>
     </div>
