@@ -2,6 +2,7 @@ import React from 'react';
 import { ThemeProvider } from './context/ThemeContext';
 import { CallProvider } from './context/CallContext';
 import { ChatProvider } from './context/ChatContext';
+import { AuthProvider, useAuth } from './context/AuthContext';
 import { Sidebar } from './components/Sidebar/Sidebar';
 import { ChatArea } from './components/ChatArea/ChatArea';
 import { InfoPanel } from './components/InfoPanel/InfoPanel';
@@ -9,8 +10,15 @@ import { CallModal } from './components/Modals/CallModal';
 import { SettingsModal } from './components/Modals/SettingsModal';
 import { NewChatModal } from './components/Modals/NewChatModal';
 import { MediaLightbox } from './components/Modals/MediaLightbox';
+import { Login } from './components/Login/Login';
 
 export const AppContent: React.FC = () => {
+  const { isAuthenticated } = useAuth();
+
+  if (!isAuthenticated) {
+    return <Login />;
+  }
+
   return (
     <div className="app-container">
       <Sidebar />
@@ -28,13 +36,15 @@ export const AppContent: React.FC = () => {
 
 export const App: React.FC = () => {
   return (
-    <ThemeProvider>
-      <CallProvider>
-        <ChatProvider>
-          <AppContent />
-        </ChatProvider>
-      </CallProvider>
-    </ThemeProvider>
+    <AuthProvider>
+      <ThemeProvider>
+        <CallProvider>
+          <ChatProvider>
+            <AppContent />
+          </ChatProvider>
+        </CallProvider>
+      </ThemeProvider>
+    </AuthProvider>
   );
 };
 
