@@ -65,8 +65,45 @@ export const ConversationList: React.FC = () => {
       </div>
 
       {sortedConversations.length === 0 ? (
-        <div style={{ padding: '32px 16px', textAlign: 'center', color: 'var(--text-muted)', fontSize: '13px' }}>
-          No conversations found
+        <div style={{ padding: '32px 20px', textAlign: 'center', color: 'var(--text-muted)', fontSize: '13px' }}>
+          {searchQuery.trim() ? (
+            <div>
+              <p style={{ margin: '0 0 6px 0', fontWeight: 600, color: 'var(--text-main)' }}>No search results found</p>
+              <p style={{ margin: 0, fontSize: '12px', color: 'var(--text-dim)' }}>
+                No conversations match &ldquo;{searchQuery}&rdquo;
+              </p>
+            </div>
+          ) : filterTab === 'unread' ? (
+            <div>
+              <p style={{ margin: '0 0 4px 0', fontWeight: 600, color: 'var(--text-main)' }}>No unread messages</p>
+              <p style={{ margin: 0, fontSize: '12px', color: 'var(--text-dim)' }}>You&apos;re all caught up!</p>
+            </div>
+          ) : (
+            <div>
+              <p style={{ margin: '0 0 6px 0', fontWeight: 600, color: 'var(--text-main)' }}>No conversations yet</p>
+              <p style={{ margin: '0 0 16px 0', fontSize: '12px', color: 'var(--text-dim)', lineHeight: 1.4 }}>
+                Connect with friends or start a new chat to begin messaging.
+              </p>
+              <button
+                onClick={() => setShowNewChatModal(true)}
+                style={{
+                  background: 'var(--accent-primary)',
+                  border: 'none',
+                  color: '#fff',
+                  borderRadius: 'var(--radius-sm)',
+                  padding: '6px 14px',
+                  fontSize: '12px',
+                  fontWeight: 600,
+                  cursor: 'pointer',
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: '6px',
+                }}
+              >
+                <Plus size={14} /> Start a Chat
+              </button>
+            </div>
+          )}
         </div>
       ) : (
         sortedConversations.map(conv => (

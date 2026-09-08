@@ -6,6 +6,7 @@ import { Avatar } from '../Common/Avatar';
 
 export const InfoPanel: React.FC = () => {
   const {
+    currentUser,
     activeConversation,
     activeMessages,
     showInfoPanel,
@@ -17,7 +18,7 @@ export const InfoPanel: React.FC = () => {
 
   if (!showInfoPanel || !activeConversation) return null;
 
-  const otherUser = activeConversation.participants.find(p => p.id !== 'user_me');
+  const otherUser = activeConversation.participants.find(p => String(p.id) !== String(currentUser.id));
   const pinnedMessages = activeMessages.filter(m => m.isPinned);
 
   // Extract shared images from message attachments
@@ -114,7 +115,7 @@ export const InfoPanel: React.FC = () => {
                 <div>
                   <div style={{ fontSize: '13px', fontWeight: 600 }}>{member.name}</div>
                   <div style={{ fontSize: '11px', color: 'var(--text-dim)' }}>
-                    {member.id === 'user_me' ? 'You' : member.status}
+                    {String(member.id) === String(currentUser.id) ? 'You' : member.status}
                   </div>
                 </div>
               </div>

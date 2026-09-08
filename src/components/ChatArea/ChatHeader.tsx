@@ -6,13 +6,13 @@ import { useTheme } from '../../context/ThemeContext';
 import { Avatar } from '../Common/Avatar';
 
 export const ChatHeader: React.FC = () => {
-  const { activeConversation, showInfoPanel, setShowInfoPanel } = useChat();
+  const { currentUser, activeConversation, showInfoPanel, setShowInfoPanel } = useChat();
   const { startCall } = useCall();
   const { playSound } = useTheme();
 
   if (!activeConversation) return null;
 
-  const otherUser = activeConversation.participants.find(p => p.id !== 'user_me');
+  const otherUser = activeConversation.participants.find(p => String(p.id) !== String(currentUser.id));
 
   return (
     <div

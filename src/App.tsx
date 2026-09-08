@@ -11,6 +11,7 @@ import { SettingsModal } from './components/Modals/SettingsModal';
 import { NewChatModal } from './components/Modals/NewChatModal';
 import { MediaLightbox } from './components/Modals/MediaLightbox';
 import { ProfileModal } from './components/Modals/ProfileModal';
+import { NetworkBanner } from './components/Common/NetworkBanner';
 import { Login } from './components/Login/Login';
 
 export const AppContent: React.FC = () => {
@@ -30,6 +31,7 @@ export const AppContent: React.FC = () => {
 
   return (
     <div className="app-container">
+      <NetworkBanner />
       <Sidebar />
       <ChatArea />
       <InfoPanel />

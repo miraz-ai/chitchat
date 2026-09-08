@@ -2,9 +2,26 @@ import React from 'react';
 import { useChat } from '../../context/ChatContext';
 
 export const TypingIndicator: React.FC = () => {
-  const { typingUsers } = useChat();
+  const { typingUsers, activeConversation } = useChat();
 
   if (typingUsers.length === 0) return null;
+
+  // Resolve user IDs to participant names
+  const names = typingUsers.map(userId => {
+    const participant = activeConversation?.participants?.find(
+      p => p.id.toString() === userId.toString()
+    );
+    return participant?.name || participant?.username || 'Someone';
+  });
+
+  let typingText = '';
+  if (names.length === 1) {
+    typingText = `${names[0]} is typing...`;
+  } else if (names.length === 2) {
+    typingText = `${names[0]} and ${names[1]} are typing...`;
+  } else {
+    typingText = `${names[0]} and ${names.length - 1} others are typing...`;
+  }
 
   return (
     <div
@@ -49,7 +66,7 @@ export const TypingIndicator: React.FC = () => {
           }}
         />
       </div>
-      <span>{typingUsers.join(', ')} is typing...</span>
+      <span>{typingText}</span>
     </div>
   );
 };

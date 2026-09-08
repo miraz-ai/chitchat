@@ -8,7 +8,7 @@ import type { UserStatus } from '../../types/chat';
 import { ConnectionsModal } from '../Modals/ConnectionsModal';
 
 export const UserProfileHeader: React.FC = () => {
-  const { currentUser, userStatus, setUserStatus, setShowSettingsModal, setShowProfileModal } = useChat();
+  const { currentUser, userStatus, setUserStatus, setShowSettingsModal, setShowProfileModal, connectionState } = useChat();
   const { theme, setTheme, playSound } = useTheme();
   const { logout } = useAuth();
   const [showStatusMenu, setShowStatusMenu] = useState(false);
@@ -45,24 +45,43 @@ export const UserProfileHeader: React.FC = () => {
             {currentUser.name}
           </h3>
           <div
-            onClick={() => setShowStatusMenu(!showStatusMenu)}
             style={{
-              display: 'inline-flex',
+              display: 'flex',
               alignItems: 'center',
               gap: '6px',
               fontSize: '12px',
               color: 'var(--text-muted)',
-              cursor: 'pointer',
               marginTop: '2px',
             }}
           >
-            <Circle
-              size={8}
-              fill={statuses.find(s => s.value === userStatus)?.color || '#10b981'}
-              color="transparent"
-            />
-            <span style={{ textTransform: 'capitalize' }}>{userStatus}</span>
-            <ChevronDown size={12} />
+            <div
+              onClick={() => setShowStatusMenu(!showStatusMenu)}
+              style={{
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: '6px',
+                cursor: 'pointer',
+              }}
+            >
+              <Circle
+                size={8}
+                fill={statuses.find(s => s.value === userStatus)?.color || '#10b981'}
+                color="transparent"
+              />
+              <span style={{ textTransform: 'capitalize' }}>{userStatus}</span>
+              <ChevronDown size={12} />
+            </div>
+
+            {connectionState === 'reconnecting' && (
+              <span style={{ fontSize: '10px', color: '#f59e0b', fontWeight: 600 }}>
+                • Reconnecting...
+              </span>
+            )}
+            {connectionState === 'disconnected' && (
+              <span style={{ fontSize: '10px', color: '#ef4444', fontWeight: 600 }}>
+                • Offline
+              </span>
+            )}
           </div>
 
           {/* Status Dropdown Menu */}

@@ -32,7 +32,7 @@ export interface Reaction {
   users: string[]; // user IDs
 }
 
-export type MessageStatus = 'sending' | 'sent' | 'delivered' | 'read';
+export type MessageStatus = 'sending' | 'sent' | 'delivered' | 'read' | 'failed';
 
 export interface Message {
   id: string;
@@ -42,6 +42,10 @@ export interface Message {
   content: string;
   timestamp: string; // ISO string or human formatted
   status?: MessageStatus;
+  isEdited?: boolean;
+  updatedAt?: string;
+  readAt?: string;
+  deliveredAt?: string;
   attachments?: Attachment[];
   reactions?: Reaction[];
   replyToId?: string;

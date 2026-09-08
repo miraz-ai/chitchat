@@ -57,8 +57,7 @@ export const Login: React.FC = () => {
     if (pass.length < 8) errors.push('At least 8 characters');
     if (!/[A-Z]/.test(pass)) errors.push('One uppercase letter');
     if (!/[a-z]/.test(pass)) errors.push('One lowercase letter');
-    if (!/\d/.test(pass)) errors.push('One number');
-    if (!/[@$!%*?&]/.test(pass)) errors.push('One special character (@$!%*?&)');
+    if (!/[^A-Za-z0-9]/.test(pass)) errors.push('One special character (e.g. !@#$%^&*)');
     return errors;
   };
 

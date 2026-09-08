@@ -11,6 +11,7 @@ interface ConversationItemProps {
 
 export const ConversationItem: React.FC<ConversationItemProps> = ({ conversation }) => {
   const {
+    currentUser,
     activeConversation,
     setActiveConversationId,
     typingUsers,
@@ -18,7 +19,7 @@ export const ConversationItem: React.FC<ConversationItemProps> = ({ conversation
   const { playSound } = useTheme();
 
   const isActive = activeConversation?.id === conversation.id;
-  const otherUser = conversation.participants.find(p => p.id !== 'user_me');
+  const otherUser = conversation.participants.find(p => String(p.id) !== String(currentUser.id));
   const isTyping = isActive && typingUsers.length > 0;
 
   return (

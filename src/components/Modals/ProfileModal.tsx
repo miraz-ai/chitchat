@@ -13,6 +13,7 @@ export const ProfileModal: React.FC = () => {
   const [name, setName] = useState(user?.name || '');
   const [email, setEmail] = useState(user?.email || '');
   const [avatar, setAvatar] = useState(user?.avatar || '');
+  const [bio, setBio] = useState(user?.bio || '');
   const [isLoading, setIsLoading] = useState(false);
   const [errorMsg, setErrorMsg] = useState('');
   const [successMsg, setSuccessMsg] = useState('');
@@ -32,7 +33,7 @@ export const ProfileModal: React.FC = () => {
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${token}`
         },
-        body: JSON.stringify({ name, email, avatar })
+        body: JSON.stringify({ name, email, avatar, bio })
       });
 
       const data = await res.json();
@@ -92,8 +93,13 @@ export const ProfileModal: React.FC = () => {
           </button>
         </div>
 
-        <div style={{ display: 'flex', justifyContent: 'center', marginBottom: '24px' }}>
+        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', marginBottom: '20px' }}>
           <Avatar src={avatar} name={name} size="xl" />
+          {user?.username && (
+            <span style={{ marginTop: '8px', fontSize: '13px', color: 'var(--accent-secondary)', fontWeight: 600 }}>
+              @{user.username}
+            </span>
+          )}
         </div>
 
         {errorMsg && (
@@ -134,7 +140,7 @@ export const ProfileModal: React.FC = () => {
           </div>
         </div>
         
-        <div style={{ marginBottom: '24px' }}>
+        <div style={{ marginBottom: '16px' }}>
           <label style={{ fontSize: '12px', fontWeight: 600, color: 'var(--text-muted)', display: 'block', marginBottom: '6px' }}>Avatar URL (Optional)</label>
           <div style={{ display: 'flex', alignItems: 'center', background: 'var(--bg-input)', borderRadius: 'var(--radius-md)', padding: '0 12px', border: '1px solid var(--border-color)' }}>
             <input
@@ -143,6 +149,20 @@ export const ProfileModal: React.FC = () => {
               onChange={(e) => setAvatar(e.target.value)}
               placeholder="https://..."
               style={{ width: '100%', background: 'transparent', border: 'none', color: 'var(--text-main)', padding: '10px', outline: 'none', fontSize: '14px' }}
+            />
+          </div>
+        </div>
+
+        <div style={{ marginBottom: '24px' }}>
+          <label style={{ fontSize: '12px', fontWeight: 600, color: 'var(--text-muted)', display: 'block', marginBottom: '6px' }}>Bio (Optional, max 300 chars)</label>
+          <div style={{ background: 'var(--bg-input)', borderRadius: 'var(--radius-md)', padding: '8px 12px', border: '1px solid var(--border-color)' }}>
+            <textarea
+              value={bio}
+              onChange={(e) => setBio(e.target.value)}
+              placeholder="Tell others about yourself..."
+              maxLength={300}
+              rows={2}
+              style={{ width: '100%', background: 'transparent', border: 'none', color: 'var(--text-main)', outline: 'none', fontSize: '13px', resize: 'none' }}
             />
           </div>
         </div>

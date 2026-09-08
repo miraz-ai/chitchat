@@ -1,13 +1,15 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import type { ReactNode } from 'react';
 
-// Added user data type, extending what we might need in chat
 export interface AuthUser {
   id: string | number;
+  username?: string;
   name: string;
   email: string;
   avatar: string;
-  status?: 'online' | 'offline' | 'away' | 'busy'; // Add status for chat context
+  bio?: string;
+  status?: 'online' | 'offline' | 'away' | 'busy';
+  last_seen?: string | null;
 }
 
 interface AuthContextType {
@@ -62,7 +64,20 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     setIsAuthenticated(true);
   };
 
-  const logout = () => {
+  const logout = async () => {
+    const token = localStorage.getItem('token');
+    if (token) {
+      try {
+        await fetch('/api/auth/logout', {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${token}`
+          }
+        });
+      } catch (err) {
+        // Silently catch network errors during logout
+      }
+    }
     localStorage.removeItem('token');
     setUser(null);
     setIsAuthenticated(false);

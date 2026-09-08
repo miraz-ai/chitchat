@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import {
   Check,
   CheckCheck,
@@ -8,6 +8,8 @@ import {
   Trash2,
   Download,
   FileText,
+  Pencil,
+  AlertCircle,
 } from 'lucide-react';
 import type { Message } from '../../types/chat';
 import { useChat } from '../../context/ChatContext';
@@ -23,26 +25,71 @@ interface MessageBubbleProps {
 export const MessageBubble: React.FC<MessageBubbleProps> = ({ message }) => {
   const {
     currentUser,
-    allUsers,
+    activeConversation,
     addReaction,
     togglePinMessage,
     deleteMessage,
+    editMessage,
+    retryMessage,
     setReplyingToMessage,
     setLightboxImage,
   } = useChat();
   const { playSound } = useTheme();
 
-  const isMe = message.senderId === currentUser.id;
-  const sender = isMe ? currentUser : allUsers.find(u => u.id === message.senderId);
+  const [isEditing, setIsEditing] = useState(false);
+  const [editContent, setEditContent] = useState(message.content);
+
+  const isMe = String(message.senderId) === String(currentUser.id);
+  const sender = isMe 
+    ? currentUser 
+    : (activeConversation?.participants?.find(p => String(p.id) === String(message.senderId)) || {
+        id: message.senderId,
+        name: 'User',
+        avatar: 'https://ui-avatars.com/api/?name=U&background=random',
+        status: 'offline'
+      });
 
   const EMOJIS = ['❤️', '👍', '😂', '🔥', '🎉', '🚀'];
+
+  const handleSaveEdit = async () => {
+    if (!editContent.trim()) return;
+    await editMessage(message.id, editContent);
+    setIsEditing(false);
+  };
+
+  const handleCancelEdit = () => {
+    setEditContent(message.content);
+    setIsEditing(false);
+  };
 
   const renderStatus = () => {
     if (!isMe) return null;
     if (message.status === 'sending') return <Clock size={13} color="var(--text-dim)" />;
     if (message.status === 'sent') return <Check size={13} color="var(--text-dim)" />;
     if (message.status === 'delivered') return <CheckCheck size={13} color="var(--text-dim)" />;
-    if (message.status === 'read') return <CheckCheck size={13} color="var(--accent-secondary)" />;
+    if (message.status === 'read') {
+      return (
+        <span title={message.readAt ? `Read at ${message.readAt}` : 'Read'} style={{ display: 'inline-flex', alignItems: 'center' }}>
+          <CheckCheck size={13} color="#3b82f6" />
+        </span>
+      );
+    }
+    if (message.status === 'failed') {
+      return (
+        <span style={{ display: 'inline-flex', alignItems: 'center', gap: '3px', color: '#ef4444', fontSize: '11px', fontWeight: 600 }}>
+          <AlertCircle size={12} />
+          <span
+            style={{ cursor: 'pointer', textDecoration: 'underline' }}
+            onClick={(e) => {
+              e.stopPropagation();
+              retryMessage(message.id);
+            }}
+          >
+            Retry
+          </span>
+        </span>
+      );
+    }
     return <CheckCheck size={13} color="var(--text-dim)" />;
   };
 
@@ -133,13 +180,25 @@ export const MessageBubble: React.FC<MessageBubbleProps> = ({ message }) => {
               <Pin size={14} color={message.isPinned ? 'var(--accent-primary)' : 'currentColor'} />
             </button>
             {isMe && (
-              <button
-                onClick={() => deleteMessage(message.id)}
-                title="Delete"
-                style={{ background: 'transparent', border: 'none', color: 'var(--accent-rose)', cursor: 'pointer' }}
-              >
-                <Trash2 size={14} />
-              </button>
+              <>
+                <button
+                  onClick={() => {
+                    playSound('click');
+                    setIsEditing(true);
+                  }}
+                  title="Edit message"
+                  style={{ background: 'transparent', border: 'none', color: 'var(--text-muted)', cursor: 'pointer' }}
+                >
+                  <Pencil size={13} />
+                </button>
+                <button
+                  onClick={() => deleteMessage(message.id)}
+                  title="Delete"
+                  style={{ background: 'transparent', border: 'none', color: 'var(--accent-rose)', cursor: 'pointer' }}
+                >
+                  <Trash2 size={14} />
+                </button>
+              </>
             )}
           </div>
 
@@ -183,8 +242,64 @@ export const MessageBubble: React.FC<MessageBubbleProps> = ({ message }) => {
               </div>
             )}
 
-            {/* Content rendering depending on type */}
-            {message.type === 'code' ? (
+            {/* Inline editing form or normal content */}
+            {isEditing ? (
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '6px', minWidth: '200px' }}>
+                <input
+                  type="text"
+                  value={editContent}
+                  onChange={(e) => setEditContent(e.target.value)}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter') {
+                      e.preventDefault();
+                      handleSaveEdit();
+                    } else if (e.key === 'Escape') {
+                      handleCancelEdit();
+                    }
+                  }}
+                  autoFocus
+                  style={{
+                    padding: '6px 8px',
+                    borderRadius: 'var(--radius-sm)',
+                    border: '1px solid var(--accent-primary)',
+                    background: 'rgba(0, 0, 0, 0.25)',
+                    color: '#fff',
+                    fontSize: '13px',
+                    outline: 'none',
+                  }}
+                />
+                <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '6px' }}>
+                  <button
+                    onClick={handleCancelEdit}
+                    style={{
+                      background: 'transparent',
+                      border: '1px solid var(--border-color)',
+                      color: 'var(--text-muted)',
+                      fontSize: '11px',
+                      padding: '2px 8px',
+                      borderRadius: 'var(--radius-sm)',
+                      cursor: 'pointer',
+                    }}
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    onClick={handleSaveEdit}
+                    style={{
+                      background: 'var(--accent-primary)',
+                      border: 'none',
+                      color: '#fff',
+                      fontSize: '11px',
+                      padding: '2px 8px',
+                      borderRadius: 'var(--radius-sm)',
+                      cursor: 'pointer',
+                    }}
+                  >
+                    Save
+                  </button>
+                </div>
+              </div>
+            ) : message.type === 'code' ? (
               <CodeBlock code={message.content} language={message.codeLanguage} />
             ) : message.type === 'voice' ? (
               <VoiceNotePlayer duration={message.audioDuration || 15} />
@@ -252,6 +367,11 @@ export const MessageBubble: React.FC<MessageBubbleProps> = ({ message }) => {
                 opacity: 0.75,
               }}
             >
+              {message.isEdited && (
+                <span style={{ fontSize: '10px', opacity: 0.7, fontStyle: 'italic', marginRight: '2px' }}>
+                  (edited)
+                </span>
+              )}
               <span>{message.timestamp}</span>
               {renderStatus()}
             </div>
