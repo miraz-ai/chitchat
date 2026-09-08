@@ -13,6 +13,7 @@ export const ChatArea: React.FC = () => {
   if (!activeConversation) {
     return (
       <div
+        className="app-chat-area hidden-mobile"
         style={{
           flex: 1,
           height: '100%',
@@ -37,6 +38,7 @@ export const ChatArea: React.FC = () => {
 
   return (
     <main
+      className="app-chat-area"
       style={{
         flex: 1,
         height: '100%',

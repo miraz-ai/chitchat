@@ -152,7 +152,7 @@ export const ConnectionsModal: React.FC<{
       <div
         className="glass-panel animate-slide-in"
         style={{
-          width: '500px', borderRadius: 'var(--radius-lg)', padding: '24px',
+          width: '500px', maxWidth: 'calc(100vw - 24px)', boxSizing: 'border-box', borderRadius: 'var(--radius-lg)', padding: '24px',
           boxShadow: 'var(--shadow-lg)', maxHeight: '82vh', display: 'flex', flexDirection: 'column'
         }}
       >

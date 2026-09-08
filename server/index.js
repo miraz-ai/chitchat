@@ -8,6 +8,9 @@ import db from './db.js';
 import { JWT_SECRET } from './middleware/auth.js';
 import { errorHandler } from './middleware/errorHandler.js';
 
+import { securityHeaders } from './middleware/securityHeaders.js';
+import { authRateLimiter, apiRateLimiter } from './middleware/rateLimiter.js';
+
 import authRoutes from './routes/authRoutes.js';
 import userRoutes from './routes/userRoutes.js';
 import { createConnectionRouter } from './routes/connectionRoutes.js';
@@ -19,26 +22,33 @@ import { ConversationService } from './services/conversationService.js';
 
 const app = express();
 const PORT = process.env.PORT || 3000;
+const allowedOrigins = process.env.CORS_ORIGIN
+  ? process.env.CORS_ORIGIN.split(',').map((o) => o.trim())
+  : '*';
 
-// Global middleware
+// Global security & middleware
+app.use(securityHeaders);
 app.use(cors({
-  origin: '*',
+  origin: allowedOrigins,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization']
 }));
-app.use(express.json());
+app.use(express.json({ limit: '1mb' }));
 
 // HTTP Server & Socket.IO instance
 const httpServer = createServer(app);
 const io = new Server(httpServer, {
   cors: {
-    origin: '*',
+    origin: allowedOrigins,
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH']
   }
 });
 
-// Mount API routes
-app.use('/api/auth', authRoutes);
+// General API rate limiter (allows high throughput for chat, prevents abusive bursts)
+app.use('/api', apiRateLimiter);
+
+// Mount API routes with strict auth rate limiting
+app.use('/api/auth', authRateLimiter, authRoutes);
 app.use('/api/users', userRoutes);
 app.use('/api/connections', createConnectionRouter(io));
 app.use('/api/conversations', createConversationRouter(io));

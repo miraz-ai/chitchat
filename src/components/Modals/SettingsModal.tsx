@@ -55,6 +55,8 @@ export const SettingsModal: React.FC = () => {
         className="glass-panel animate-slide-in"
         style={{
           width: '500px',
+          maxWidth: 'calc(100vw - 24px)',
+          boxSizing: 'border-box',
           borderRadius: 'var(--radius-lg)',
           padding: '24px',
           boxShadow: 'var(--shadow-lg)',

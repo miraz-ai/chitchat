@@ -1,12 +1,12 @@
 import React from 'react';
-import { Phone, Video, Info } from 'lucide-react';
+import { Phone, Video, Info, ArrowLeft } from 'lucide-react';
 import { useChat } from '../../context/ChatContext';
 import { useCall } from '../../context/CallContext';
 import { useTheme } from '../../context/ThemeContext';
 import { Avatar } from '../Common/Avatar';
 
 export const ChatHeader: React.FC = () => {
-  const { currentUser, activeConversation, showInfoPanel, setShowInfoPanel } = useChat();
+  const { currentUser, activeConversation, setActiveConversationId, showInfoPanel, setShowInfoPanel } = useChat();
   const { startCall } = useCall();
   const { playSound } = useTheme();
 
@@ -18,7 +18,7 @@ export const ChatHeader: React.FC = () => {
     <div
       style={{
         height: '68px',
-        padding: '0 20px',
+        padding: '0 16px',
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'space-between',
@@ -27,7 +27,18 @@ export const ChatHeader: React.FC = () => {
         backdropFilter: 'blur(12px)',
       }}
     >
-      <div style={{ display: 'flex', alignItems: 'center', gap: '14px' }}>
+      <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+        <button
+          className="mobile-back-btn"
+          onClick={() => {
+            playSound('pop');
+            setActiveConversationId('');
+          }}
+          title="Back to conversations"
+          aria-label="Back to conversations"
+        >
+          <ArrowLeft size={18} />
+        </button>
         <Avatar
           src={activeConversation.avatar}
           name={activeConversation.name}

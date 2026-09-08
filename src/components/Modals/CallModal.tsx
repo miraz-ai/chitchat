@@ -32,7 +32,10 @@ export const CallModal: React.FC = () => {
         className="glass-panel animate-slide-in"
         style={{
           width: '560px',
+          maxWidth: 'calc(100vw - 24px)',
+          boxSizing: 'border-box',
           height: '460px',
+          maxHeight: '90vh',
           borderRadius: 'var(--radius-lg)',
           display: 'flex',
           flexDirection: 'column',

@@ -7,7 +7,7 @@
     "dev": "concurrently \"vite\" \"node --watch server/index.js\"",
     "build": "tsc -b && vite build",
     "lint": "oxlint",
-    "test": "node server/tests/backend.test.js && node server/tests/api.test.js && node server/tests/auth_user.test.js && node server/tests/connections_conversations.test.js && node server/tests/realtime_chat.test.js && node server/tests/complete_chat_features.test.js",
+    "test": "node server/tests/backend.test.js && node server/tests/api.test.js && node server/tests/auth_user.test.js && node server/tests/connections_conversations.test.js && node server/tests/realtime_chat.test.js && node server/tests/complete_chat_features.test.js && node server/tests/final_qa_security.test.js",
     "preview": "vite preview"
   },
   "dependencies": {

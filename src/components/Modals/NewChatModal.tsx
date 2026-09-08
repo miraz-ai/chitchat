@@ -124,7 +124,7 @@ export const NewChatModal: React.FC = () => {
       <div
         className="glass-panel animate-slide-in"
         style={{
-          width: '460px', borderRadius: 'var(--radius-lg)', padding: '24px',
+          width: '460px', maxWidth: 'calc(100vw - 24px)', boxSizing: 'border-box', borderRadius: 'var(--radius-lg)', padding: '24px',
           boxShadow: 'var(--shadow-lg)',
         }}
       >

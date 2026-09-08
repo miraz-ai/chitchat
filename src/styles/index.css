@@ -200,3 +200,64 @@ html, body, #root {
 .animate-fade-in {
   animation: fadeIn 0.2s ease-in-out forwards;
 }
+
+/* Responsive Layout */
+@media (max-width: 768px) {
+  .app-sidebar {
+    width: 100% !important;
+    min-width: 100% !important;
+    border-right: none !important;
+  }
+  
+  .app-sidebar.hidden-mobile {
+    display: none !important;
+  }
+  
+  .app-chat-area {
+    width: 100% !important;
+    min-width: 100% !important;
+  }
+  
+  .app-chat-area.hidden-mobile {
+    display: none !important;
+  }
+
+  .app-info-panel {
+    position: fixed !important;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    width: 100% !important;
+    max-width: 320px !important;
+    z-index: 60 !important;
+    box-shadow: -10px 0 25px rgba(0, 0, 0, 0.5);
+  }
+}
+
+.mobile-back-btn {
+  display: none;
+}
+
+@media (max-width: 768px) {
+  .mobile-back-btn {
+    display: inline-flex !important;
+    align-items: center;
+    justify-content: center;
+    width: 36px;
+    height: 36px;
+    border-radius: var(--radius-sm);
+    background: rgba(255, 255, 255, 0.08);
+    border: 1px solid var(--border-color);
+    color: var(--text-main);
+    cursor: pointer;
+    margin-right: 8px;
+    flex-shrink: 0;
+  }
+}
+
+@media (max-width: 480px) {
+  .glass-panel {
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+  }
+}
